@@ -9,7 +9,7 @@ export async function POST(req,res){
         const body = await req.json()
         const {title,units} = createChaptersSchema.parse(body)
         const unitPrompts = units.map((unit,index) => 
-            `It is your job to create a course about ${title}. The user has requested to create chapters for the unit titled titled "Unit ${index + 1}: ${unit}. For each chapter, provide a detailed YouTube search query that can be used to find an informative educational video. Each query should give an educational informative course in YouTube.`
+            `It is your job to create a course about ${title}. The user has requested to create chapters for the unit titled titled ${unit}. For each chapter, provide a detailed YouTube search query that can be used to find an informative educational video. Each query should give an educational informative course in YouTube.`
           );
         let output_units = await strict_output(
             'you are an AI capable of curating course content, coming up with relevant chapter titles and finding relevant youtube videos for each chapter',

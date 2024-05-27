@@ -23,8 +23,8 @@ export default function RootLayout({ children }) {
           disableTransitionOnChange>
             <Navbar/>
             {children}
-            <Toaster/>
         </Providers>
+        <Toaster/>
         
       </body>
     </html>
