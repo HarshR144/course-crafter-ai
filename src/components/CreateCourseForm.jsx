@@ -1,6 +1,5 @@
 'use client'
 
-
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
@@ -14,6 +13,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useToast } from './ui/use-toast'
 import { createChaptersSchema } from '@/validators/course'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
 const CreateCourseForm = () => {
     const {toast} = useToast()
     const router = useRouter()
@@ -33,9 +33,9 @@ const CreateCourseForm = () => {
     })
 
     function onSubmit(data){
-        console.log(data);
+  
         if (data.units.some((unit) => unit === "")) {
-            console.log(data)
+        
             toast({
               title: "Error",
               description: "Please fill all the units",

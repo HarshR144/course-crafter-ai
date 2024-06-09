@@ -4,9 +4,10 @@ import axios from 'axios';
 import React from 'react'
 import { useToast } from './ui/use-toast';
 import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const ChapterCard =React.forwardRef(({chapter, chapterIndex,completedChapters, setCompletedChapters},ref) => {
-   
+
     const [success, setSuccess] = React.useState(null);
     const toast = useToast()
     const {mutate:getChapterInfo, isLoading} = useMutation({
@@ -34,6 +35,7 @@ const ChapterCard =React.forwardRef(({chapter, chapterIndex,completedChapters, s
     React.useImperativeHandle(ref,()=>({
         async triggerLoad(){
             if(chapter.videoId){
+                setSuccess(true)
                 addChapterIdtoSet();
                     return
 
@@ -46,12 +48,13 @@ const ChapterCard =React.forwardRef(({chapter, chapterIndex,completedChapters, s
                 onError:(error)=>{
                     console.log(error);
                     setSuccess(false);
+                    addChapterIdtoSet();
                     toast({
                         title:"Error",
                         description:"There was an error loading your chapter ",
                         variant:'destructive'
                     })
-                    addChapterIdtoSet();
+                    
                 } 
             })
         }

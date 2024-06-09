@@ -20,7 +20,7 @@ const ConfirmChapters = ({course}) => {
     const [completedChapters, setCompletedChapters] = React.useState(new Set())
     const totalChaptersCount = React.useMemo(()=>{
         return course.units.reduce((acc,unit)=>{
-            return acc + unit.chapters.length
+            return acc + unit.chapters.length;
         },0)
     },[course.units])
     
@@ -31,7 +31,7 @@ const ConfirmChapters = ({course}) => {
     return (
         <div className='w-full mt-4 '>
         {
-            course.unit.map((unit, unitIndex)=>{
+            course.units.map((unit, unitIndex)=>{
                 return(
                     <div key={unit.id} className='mt-5'>
                         <h2 className='text-sm uppercase text-secondary-foreground/60'>
@@ -56,6 +56,8 @@ const ConfirmChapters = ({course}) => {
                             }
 
                         </div>
+                    </div>)
+            })}
                         <div className='flex items-center justify-center mt-4'>
                             <Separator className="flex-[1]"/>
                             <div className='flex items-center mx-4 '>
@@ -79,7 +81,7 @@ const ConfirmChapters = ({course}) => {
                                         <Button type="button" 
                                             className="ml-4 font-semibold "
                                             disabled={loading}
-                                            onCLick={()=>{
+                                            onClick={()=>{
                                                     setLoading(true);
                                                     Object.values(chapterRefs).forEach((ref)=>{
                                                         ref.current?.triggerLoad()
@@ -98,10 +100,7 @@ const ConfirmChapters = ({course}) => {
                         </div>
                     </div>
                 )
-            })
+            
         }
-    </div>
-  )
-}
-
+   
 export default ConfirmChapters

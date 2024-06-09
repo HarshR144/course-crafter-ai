@@ -1,5 +1,6 @@
 import ConfirmChapters from '@/components/ConfirmChapters'
 import { getAuthSession } from '@/lib/auth'
+import { prisma } from '@/lib/db'
 import { Info } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import React from 'react'
@@ -10,19 +11,20 @@ const CreateChapters = async({params:{courseId}}) => {
         return redirect('/gallery')
     }
 
-    const course  = await prisma.course.findUnique({
-        where:{
-            id:courseId
+    const course = await prisma.course.findUnique({
+        where: {
+          id: courseId,
         },
-        include:{
-            units:{
-                include:{
-                    chapters:true
-                }
-            }
-        }
-    })
+        include: {
+          units: {
+            include: {
+              chapters: true,
+            },
+          },
+        },
+      });
     if(!course){
+        console.log("Course not found in create[courseId]: ",courseId)
         return redirect('/create');
     }
     return (
@@ -39,8 +41,9 @@ const CreateChapters = async({params:{courseId}}) => {
                 <div>
                     We generated chapter for each of your units.Look over them and then click on the button confirm and continue
                 </div>
-                <ConfirmChapters course = {course}/>
+                
             </div>
+            <ConfirmChapters course = {course}/>
         </div>
     )
 }
