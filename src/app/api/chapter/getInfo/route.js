@@ -1,11 +1,9 @@
+import { prisma } from "@/lib/db"
 import { strict_output } from "@/lib/gpt"
-import { getTranscript, searchYoutube } from "@/lib/youtube"
+import { getQuestionsFromTranscript, getTranscript, searchYoutube } from "@/lib/youtube"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-const sleep = async ()=> new Promise((resolve)=>{
-    setTimeout(resolve, Math.random()*4000)
-})
 
 const bodyParser = z.object({
     chapterId: z.string()
@@ -23,6 +21,7 @@ export async function POST(req,res){
 
             }
         });
+        
         if(!chapter){
             return NextResponse.json({
                 success:false,
@@ -30,38 +29,65 @@ export async function POST(req,res){
             },{status:404})
         }
 
+
         const videoId = await searchYoutube(chapter.youtubeSearchQuery);
+        
         let transcript = await getTranscript(videoId);
-        let maxLength = 250
-        transcript = transcript.split(' ').slice(0,maxLength).join(' ')
-
-        const {summary} = await strict_output(
-            "You are an AI capable of summarising a youtube transcript",
-            "summarise in 250 words or less and do not talk of the sponsors or anything unrelated to the main topic, also do not introduce what the summary is about.\n" + transcript,
-            { summary: "summary of the transcript" }
-        );
-
-        const questions = await getQuestionsFromTranscript(transcript,chapter.name);
-
-        await prisma.questions.createMany({
-            data:questions.map((question)=>{
-                let options = [question.option1, question.option1, question.option2, question.option3]
-                options.sort(()=>Math.random()-0.5)
-                return {
-                question:question.question,
-                answer:question.answer,
-                options:JSON.stringify(options),
-                chapterId:chapterId
-             }   
-            })
-        })
-
+       
+            
+        let transcript_arr = transcript.split(" ")
+        
+        let maxLength = Math.min(250,transcript_arr.length)
+        
+        let sliced_transcript = transcript_arr.slice(0,maxLength).join(' ')
+    
         await prisma.chapter.update({
-            data:{
-                videoId:videoId,
-                summary:summary,
-            }
-        })
+            where: { id: chapterId },
+            data: {
+              videoId: videoId
+            },
+          });
+          try {
+            
+        const {summary} = await strict_output(
+            "You are an AI capable of summarising a youtube transcript in maximum 250 words",
+            `transcript: + ${sliced_transcript}`,
+            `Provide your output in the following JSON format:
+            {
+                "summary": "summary of the transcript"
+            }`
+        );
+        await prisma.chapter.update({
+            where: { id: chapterId },
+            data: {
+              summary: summary,
+            },
+          });
+        const questions = await getQuestionsFromTranscript(sliced_transcript,chapter.name);
+        
+        await prisma.question.createMany({
+            data: questions.map((question) => {
+              let options = [
+                question.answer,
+                question.option1,
+                question.option2,
+                question.option3,
+              ];
+              
+              console.log(options)
+              options = options.sort(() => Math.random() - 0.5);
+              return {
+                question: question.question,
+                answer: question.answer,
+                options: JSON.stringify(options),
+                chapterId: chapterId,
+              };
+            }),
+          });
+        } catch (questionsError) {
+            console.error("Error fetching or storing questions or summary:", questionsError);
+        }
+      
 
 
         return NextResponse.json({success:true })
@@ -76,7 +102,7 @@ export async function POST(req,res){
         else{
             return NextResponse.json({
                 success:false,
-                error:"Something went wrong"
+                error:error.message
             },{status:500})
         }
     }

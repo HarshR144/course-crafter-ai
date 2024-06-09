@@ -1,21 +1,25 @@
 import { YoutubeTranscript } from "youtube-transcript";
 import { strict_output } from "./gpt";
+import axios from "axios";
 
 export async function searchYoutube(searchQuery){
-    // Openai completion => Openai+completion 
+    // ai completion => ai+completion 
     searchQuery = encodeURIComponent(searchQuery);
+    
     const {data}  = await axios.get(
         `https://www.googleapis.com/youtube/v3/search?key=${process.env.YOUTUBE_API_KEY}&q=${searchQuery}&videoDuration=medium&videoEmbeddable=true&type=video&maxResults=5`
     )
+
     if(!data){
         console.log('youtube fail')
+        console.log("FAIL no data")
         return null
     }
     if(data.items[0]== undefined){
+        console.log("FAIL")
         console.log('youtube fail')
         return null
     }
-
     return data.items[0].id.videoId
 }
 
@@ -38,18 +42,14 @@ export async function getTranscript(videoId){
 
 
 export async function getQuestionsFromTranscript(transcript, course_title){
+    
     const questions = await strict_output(
-        "You are a helpful AI that is able to generate mcq questions and answers, the length of each answer should not be more than 15 words",
-        new Array(5).fill(
-          `You are to generate a random hard mcq question about ${course_title} with context of the following transcript: ${transcript}`
-        ),
-        {
-          question: "question",
-          answer: "answer with max length of 15 words",
-          option1: "option1 with max length of 15 words",
-          option2: "option2 with max length of 15 words",
-          option3: "option3 with max length of 15 words",
-        }
+        "You are a helpful AI assistant that can generate multiple-choice questions and answers",
+        `Course Title:${course_title}\n Transcript:${transcript}`,
+        "Provide your output in the array of JSON format"
+
       );
+
+  
       return questions;
     }
