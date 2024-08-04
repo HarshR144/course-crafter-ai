@@ -14,6 +14,7 @@ import { useToast } from './ui/use-toast'
 import { createChaptersSchema } from '@/validators/course'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import SubscriptionAction from './SubscriptionAction'
 const CreateCourseForm = () => {
     const {toast} = useToast()
     const router = useRouter()
@@ -167,6 +168,8 @@ const CreateCourseForm = () => {
                      
                 </form>
             </Form>
+
+            <SubscriptionAction/>
         </div>
   )
 }

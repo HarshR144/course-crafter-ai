@@ -14,7 +14,7 @@ const Gallery = async  () => {
     })
     return (
     <div className='py-8 mx-auto max-w-7xl'>
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 place-items-center'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 place-items-center gap-y-5'>
             {
                 courses.map((course)=>{
                     return <GalleryCourseCard course={course} key={course.id}/>

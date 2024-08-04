@@ -9,13 +9,13 @@ export async function POST(req,res){
     try{
         const body = await req.json();
         const { title, units } = createChaptersSchema.parse(body);
-        
           
           let output_units = await strict_output(
             "You are an AI assistant capable of creating course content. Your task is to generate a list of chapters and corresponding YouTube search queries for a given course and units.",
             `Course Title:${title}\n Unit titles:${units.join(",")}`,
             "Provide your output in the following array of JSON format"
           );
+          
         
           const imageSearchTerm = await strict_output(
             'You are an AI assistant tasked with finding relevant image search terms for a given course title.',
@@ -24,9 +24,10 @@ export async function POST(req,res){
            
           );
 
-      
+          console.log("Before image ",imageSearchTerm)
         const course_image = await getUnsplashImage(imageSearchTerm.image_search_term);
-
+        
+        console.log("Before image ", course_image)
 
         const course = await prisma.course.create({
             data: {
