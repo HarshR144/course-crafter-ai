@@ -14,12 +14,11 @@ const port = process.env.PORT || 5000;
 const prisma = new PrismaClient();
 
 // Middleware
-app.use(
-    cors({
-        origin:"*",   //change on deploy
-        credentials:true,
-    })
-)
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
 app.use(bodyParser.json());
 
 // Schema validation
