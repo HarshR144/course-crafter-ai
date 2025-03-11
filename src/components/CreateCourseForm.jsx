@@ -1,13 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel } from './ui/form'
 import { Input } from './ui/input'
 import { Separator } from './ui/separator'
 import { Button } from './ui/button'
-import { ArrowRight, Plus, Trash } from 'lucide-react'
+import { ArrowRight, Plus, Trash, Loader2 } from 'lucide-react'
 import {motion, AnimatePresence } from 'framer-motion'
 import { useMutation } from '@tanstack/react-query'
 import { useToast } from './ui/use-toast'
@@ -24,7 +24,8 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:500
 const CreateCourseForm = () => {
     const {toast} = useToast()
     const router = useRouter()
-    const {mutate:createChapters,isLoading} = useMutation({
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const {mutate:createChapters, mutationLoading} = useMutation({
         mutationFn:async({title,units})=>{
             const response = await axios.post(`${BACKEND_URL}/api/course/createChapters`,{title,units})
             return response.data
@@ -40,9 +41,10 @@ const CreateCourseForm = () => {
     })
 
     function onSubmit(data){
-  
+        setIsSubmitting(true)
         if (data.units.some((unit) => unit === "")) {
-        
+            
+            setIsSubmitting(false)
             toast({
               title: "Error",
               description: "Please fill all the units",
@@ -58,6 +60,8 @@ const CreateCourseForm = () => {
                 description: "Course created successfully",
               });
             router.push(`/create/${course_id}`)
+            setIsSubmitting(false)
+            
         },
         onError:(error)=>{
             console.error(error);
@@ -66,9 +70,12 @@ const CreateCourseForm = () => {
                 description: "Something went wrong",
                 variant: "destructive",
               });
+              setIsSubmitting(false)
+            
         }
     })
     }
+    const isLoading = isSubmitting || mutationLoading;
     // console.log(form.watch())
     return (
         <div className='w-full'>
@@ -121,7 +128,7 @@ const CreateCourseForm = () => {
                                             </FormLabel>
                                             <FormControl className='flex-[6] '>
                                                 <Input 
-                                                placeholder="Enter dub-topic of course"
+                                                placeholder="Enter sub-topic of course"
                                                 {...field}/>
                                             </FormControl>
                                         </FormItem>
@@ -162,13 +169,21 @@ const CreateCourseForm = () => {
                         <Separator className="flex-[1] "/>
                     </div>
                     <Button
-                     disabled = {isLoading}
+                     disabled={isLoading}
                      type="submit"
                      className='w-full mt-6'
                      size='lg'>
-                        Let&#39;s Go 
-
-                        <ArrowRight className=' w-5 h-5 ml-2'/>
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                Creating...
+                            </>
+                        ) : (
+                            <>
+                                Let&#39;s Go
+                                <ArrowRight className='w-5 h-5 ml-2' />
+                            </>
+                        )}
                     </Button>            
 
                      
