@@ -15,12 +15,18 @@ import { createChaptersSchema } from '@/validators/course'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import SubscriptionAction from './SubscriptionAction'
+
+
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+
+
 const CreateCourseForm = () => {
     const {toast} = useToast()
     const router = useRouter()
     const {mutate:createChapters,isLoading} = useMutation({
         mutationFn:async({title,units})=>{
-            const response = await axios.post('/api/course/createChapters',{title,units})
+            const response = await axios.post(`${BACKEND_URL}/api/course/createChapters`,{title,units})
             return response.data
         }
     })

@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import "server-only";
-
+import { PrismaClient } from "@prisma/client";
 
 export let prisma
 if (process.env.NODE_ENV === "production") {
